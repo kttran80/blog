@@ -1,28 +1,52 @@
-<div class="mt-4">
-    <div>
-      
-      <a href="/" >    
-          Danh sach khoa hoc
-      </a>
+<form class="mt-4" name="container-form" method="POST" action="/lesson/handle-form-actions/">
+   
+  <h3>Khoa hoc da bi xoa </h3>
+  <a href="/me/stored/lessons" >    
+        Khoa hoc cua toi
+  </a>
+
+  <div class="mt-4 d-flex">
+    <div class="form-check form-check-sm">
+      <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+      <label class="form-check-label" for="flexCheckDefault">
+        Chon tat ca
+      </label>
     </div>
-    <h3>Khoa hoc da bi xoa</h3>
-    <table class="table">
+
+    <select class="form-select form-select-sm checkbox-select-all-options" aria-label="Default select example" name="action" required>
+      <option value="" selected>---Hanh dong---</option>
+      <option value="restore" >Khoi phuc</option>      
+      <option value="force" >Xoa vinh vien</option>      
+    </select>
+
+    <button type="submit" class="btn btn-primary btn-sm disabled" id="btn-checkAllSubmit">Thuc hien</button>
+  </div>
+  
+
+
+  <table class="table">
   <thead>
     <tr>
       <th scope="col">#</th>
+      <th scope="col">#</th>
       <th scope="col">Ten</th>
       <th scope="col">Trinh do</th>
-      <th scope="col2" colspan="2">Thoi gian tao</th>
+      <th scope="col2" colspan="2">Thoi gian Xoa</th>
       
     </tr>
   </thead>
   <tbody>    
         {{#each lessons}}
         <tr>
+            <td>
+                <div class="form-check form-check-sm">
+                  <input class="form-check-input" type="checkbox" value="{{this._id}}" name="lessonIds">                
+                </div>
+            </td>
             <th scope="row">{{sum @index 1}}</th>
             <td>{{this.title}}</td>
             <td>{{this.level}}</td>
-            <td>{{this.createdAt}}</td>    
+            <td>{{this.deletedAt}}</td>    
             <td>
                 <a href="#" class="btn btn-link btn-restore" data-id="{{this._id}}">Khoi phuc</a>        
                 <a href="#" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#deleteForeverModal" data-bs-whatever="{{this._id}}">Xoa vinh vien</a>
@@ -35,7 +59,7 @@
         {{~/each}}
   </tbody>
 </table>
-</div>
+</form>
 
 
 <!-- delete warning -->
@@ -66,21 +90,22 @@
 <script>
   var deleteForeverModal = document.getElementById('deleteForeverModal')
   var restoreForm = document.forms['restore-form'];
+
   deleteForeverModal.addEventListener('show.bs.modal', function (event) {
-  // Button that triggered the modal
-  var button = event.relatedTarget
-  // Extract info from data-bs-* attributes
-  var id = button.getAttribute('data-bs-whatever') 
- 
-  var btnConfirmDelete = document.getElementById('btn-delete-lesson');
-  var deleteForm = document.forms['delete-form'];
+      // Button that triggered the modal
+      var button = event.relatedTarget
+      // Extract info from data-bs-* attributes
+      var id = button.getAttribute('data-bs-whatever') 
+    
+      var btnConfirmDelete = document.getElementById('btn-delete-lesson');
+      var deleteForm = document.forms['delete-form'];
 
 
-  btnConfirmDelete.onclick = function(){
-      
-      deleteForm.action = '/lesson/' + id + '/force?_method=DELETE';
-      deleteForm.submit();
-  }
+      btnConfirmDelete.onclick = function(){
+          
+          deleteForm.action = '/lesson/' + id + '/force?_method=DELETE';
+          deleteForm.submit();
+      }
   
   });
 
@@ -97,5 +122,51 @@
 
       console.log(id);
     }
+  }
+
+  var checkboxAll = document.querySelector('#checkbox-all');
+  var btnCheckAllSubmit = document.querySelector('#btn-checkAllSubmit');
+  var lessonItemCheckboxes = document.querySelectorAll('input[name="lessonIds"]');  
+  var containerForm = document.querySelector('form[name="container-form"]');  
+
+    // checked all
+  checkboxAll.onchange = e => {
+    var isCheckedAll = e.target.checked;
+    
+    for(var lessonItemCheckbox of lessonItemCheckboxes){
+      lessonItemCheckbox.checked = (isCheckedAll === true);
+    }
+    renderCheckAllButtonSubmit();
+  }  
+
+  // lesson item checkbox
+  for(var lessonItemCheckbox of lessonItemCheckboxes){       
+
+      lessonItemCheckbox.onchange = e => {
+        var checkCount = document.querySelectorAll('input[name="lessonIds"]:checked').length;
+        checkboxAll.checked = lessonItemCheckboxes.length === checkCount;  
+        renderCheckAllButtonSubmit();
+    }  
+  }
+
+  // form check if can be submitted
+  containerForm.onsubmit = e => {
+    
+    var isSubmittable = !btnCheckAllSubmit.classList.contains('disabled');
+    
+    if (!isSubmittable) {     
+      e.preventDefault();
+    }
+  }
+
+  // re-render check all button submit 
+  function renderCheckAllButtonSubmit(){
+    var checkCount = document.querySelectorAll('input[name="lessonIds"]:checked').length;
+    if (checkCount>0)
+        {
+          btnCheckAllSubmit.classList.remove('disabled')            ;
+        } else {
+          btnCheckAllSubmit.classList.add('disabled')            ;
+        }
   }
 </script>

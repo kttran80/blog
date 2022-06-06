@@ -4,6 +4,7 @@ const router = express.Router();
 const lessonController = require('../app/controllers/LessonController');
 
 router.get('/create', lessonController.create);
+router.post('/handle-form-actions', lessonController.handleFormAction);
 router.get('/:id/edit', lessonController.edit);
 router.post('/store', lessonController.store);
 router.delete('/:id/delete', lessonController.delete);

@@ -1,36 +1,60 @@
-<div class="mt-4">
-    <h3>Khoa hoc cua ban</h3>
-    <a href="/me/trashed/lessons">Thung rac</a>
-    <table class="table">
-  <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Ten</th>
-      <th scope="col">Trinh do</th>
-      <th scope="col2" colspan="2">Thoi gian tao</th>
-      
-    </tr>
-  </thead>
-  <tbody>
-        {{#each lessons}}
-        <tr>
-            <th scope="row">{{sum @index 1}}</th>
-            <td>{{this.title}}</td>
-            <td>{{this.level}}</td>
-            <td>{{this.createdAt}}</td>    
-            <td>
-                <a href="/lesson/{{this._id}}/edit" class="btn btn-link">Sua</a>        
-                <a href="/lesson/{{this._id}}/delete" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-whatever="{{this._id}}">Xoa</a>
-            </td>
-            {{else}}  
-            <td colspan="5">
-              Ban chua dang khoa hoc nao. <a href="/lesson/create">Dang khoa hoc</a>
-            </td>
-        </tr> 
-        {{~/each}}
-  </tbody>
-</table>
-</div>
+<form class="mt-4" name="container-form" method="POST" action="/lesson/handle-form-actions/">
+    <h4>Khoa hoc cua toi</h4>
+    <a href="/me/trashed/lessons">Thung rac ({{deletedCount}})</a>
+
+  <div class="mt-4 d-flex">
+    <div class="form-check form-check-sm">
+      <input class="form-check-input" type="checkbox" value="" id="checkbox-all">
+      <label class="form-check-label" for="flexCheckDefault">
+        Chon tat ca
+      </label>
+    </div>
+
+    <select class="form-select form-select-sm checkbox-select-all-options" aria-label="Default select example" name="action" required>
+      <option value="" selected>---Hanh dong---</option>
+      <option value="delete" >Xoa</option>      
+    </select>
+
+    <button type="submit" class="btn btn-primary btn-sm disabled" id="btn-checkAllSubmit">Thuc hien</button>
+  </div>
+  
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">#</th>
+        <th scope="col">Ten</th>
+        <th scope="col">Trinh do</th>
+        <th scope="col2" colspan="2">Thoi gian tao</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+          {{#each lessons}}
+          <tr>
+              <td>
+                <div class="form-check form-check-sm">
+                  <input class="form-check-input" type="checkbox" value="{{this._id}}" name="lessonIds">                
+                </div>
+              </td>
+              <th scope="row">{{sum @index 1}}</th>
+              <td>{{this.title}}</td>
+              <td>{{this.level}}</td>
+              <td>{{this.createdAt}}</td>    
+              <td>
+                  <a href="/lesson/{{this._id}}/edit" class="btn btn-link">Sua</a>        
+                  <a href="/lesson/{{this._id}}/delete" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-whatever="{{this._id}}">Xoa</a>
+              </td>
+              {{else}}  
+              <td colspan="5">
+                Ban chua dang khoa hoc nao. <a href="/lesson/create">Dang khoa hoc</a>
+              </td>
+          </tr> 
+          {{~/each}}
+    </tbody>
+  </table>
+</form>
 
 
 <!-- delete warning -->
@@ -52,29 +76,76 @@
   </div>
 </div>
 
-{{!-- delete form --}}
-<form method="post" name="delete-form">
 
-</form>
+<!-- confirm delete -->
+<form method="post" name="delete-form"></form>
 
 
 <script>
-  var deleteModal = document.getElementById('deleteModal')
-  deleteModal.addEventListener('show.bs.modal', function (event) {
-  // Button that triggered the modal
-  var button = event.relatedTarget
-  // Extract info from data-bs-* attributes
-  var id = button.getAttribute('data-bs-whatever') 
- 
-  var btnConfirmDelete = document.getElementById('btn-delete-lesson');
-  var deleteForm = document.forms['delete-form'];
 
-  btnConfirmDelete.onclick = function(){
-      
-      deleteForm.action = '/lesson/' + id + '/delete?_method=DELETE';
-      deleteForm.submit();
+  var deleteModal = document.getElementById('deleteModal')
+
+  // pop up delete modal
+  deleteModal.addEventListener('show.bs.modal', function (event) {
+    // Button that triggered the modal
+    var button = event.relatedTarget
+    // Extract info from data-bs-* attributes
+    var id = button.getAttribute('data-bs-whatever') 
+  
+    var btnConfirmDelete = document.getElementById('btn-delete-lesson');
+    var deleteForm = document.forms['delete-form'];
+
+    btnConfirmDelete.onclick = function(){
+        
+        deleteForm.action = '/lesson/' + id + '/delete?_method=DELETE';
+        deleteForm.submit();
+    }
+  });
+
+
+  var checkboxAll = document.querySelector('#checkbox-all');
+  var btnCheckAllSubmit = document.querySelector('#btn-checkAllSubmit');
+  var lessonItemCheckboxes = document.querySelectorAll('input[name="lessonIds"]');  
+  var containerForm = document.querySelector('form[name="container-form"]');  
+
+  // checked all
+  checkboxAll.onchange = e => {
+    var isCheckedAll = e.target.checked;
+    
+    for(var lessonItemCheckbox of lessonItemCheckboxes){
+      lessonItemCheckbox.checked = (isCheckedAll === true);
+    }
+    renderCheckAllButtonSubmit();
+  }  
+
+  // lesson item checkbox
+  for(var lessonItemCheckbox of lessonItemCheckboxes){       
+
+      lessonItemCheckbox.onchange = e => {
+        var checkCount = document.querySelectorAll('input[name="lessonIds"]:checked').length;
+        checkboxAll.checked = lessonItemCheckboxes.length === checkCount;  
+        renderCheckAllButtonSubmit();
+    }  
   }
-  
-  
-})
+
+  // form check if can be submitted
+  containerForm.onsubmit = e => {
+    
+    var isSubmittable = !btnCheckAllSubmit.classList.contains('disabled');
+    
+    if (!isSubmittable) {     
+      e.preventDefault();
+    }
+  }
+
+  // re-render check all button submit 
+  function renderCheckAllButtonSubmit(){
+    var checkCount = document.querySelectorAll('input[name="lessonIds"]:checked').length;
+    if (checkCount>0)
+        {
+          btnCheckAllSubmit.classList.remove('disabled')            ;
+        } else {
+          btnCheckAllSubmit.classList.add('disabled')            ;
+        }
+  }
 </script>

@@ -78,6 +78,27 @@ class LessonController {
             .then(() => res.redirect('/me/trashed/lessons'))
             .catch(next);
     }
+
+    // POST /lesson/handle-form-actions/
+    handleFormAction(req, res, next) {
+        switch (req.body.action) {
+            case 'delete':
+                Lesson.delete({ _id: { $in: req.body.lessonIds } })
+                    .then(() => res.redirect('/me/stored/lessons'))
+                    .catch(next);
+
+                break;
+            case 'restore':
+                Lesson.restore({ _id: { $in: req.body.lessonIds } })
+                    .then(() => res.redirect('/me/trashed/lessons'))
+                    .catch(next);
+
+                break;
+            default:
+                res.json({ message: 'Action is invalid!' });
+                break;
+        }
+    }
 }
 
 module.exports = new LessonController();
