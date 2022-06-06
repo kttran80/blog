@@ -3,10 +3,21 @@ const { multipleMongooseToObject } = require('../../utils/mongoose');
 
 class MeController {
     // [GET] /me/stored/lessons
-    storedCourses(req, res, next) {
+    storedLessons(req, res, next) {
         Lesson.find({})
             .then((lessons) =>
                 res.render('me/stored-lessons', {
+                    lessons: multipleMongooseToObject(lessons),
+                }),
+            )
+            .catch(next);
+    }
+
+    // [GET] /me/trashed/courses
+    trashedLessons(req, res, next) {
+        Lesson.findDeleted({})
+            .then((lessons) =>
+                res.render('me/trashed-lessons', {
                     lessons: multipleMongooseToObject(lessons),
                 }),
             )

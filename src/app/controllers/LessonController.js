@@ -3,6 +3,7 @@ const { mongooseToObject } = require('../../utils/mongoose');
 const res = require('express/lib/response');
 
 class LessonController {
+    // GET /lesson/:slug
     show(req, res, next) {
         Lesson.findOne({ slug: req.params.slug })
             .then((lesson) => {
@@ -15,7 +16,19 @@ class LessonController {
             })
             .catch(next);
     }
+    // POST /lesson/store
+    store(req, res, next) {
+        var formData = req.body;
 
+        formData.image = `https://i.ytimg.com/vi/${req.body.videoid}/hqdefault.jpg`;
+
+        const lesson = new Lesson(formData);
+
+        lesson
+            .save()
+            .then(() => res.redirect('/'))
+            .catch(next);
+    }
     // GET /lesson/create
     create(req, res, next) {
         res.render('lesson/create');
@@ -32,14 +45,14 @@ class LessonController {
             .catch(next);
     }
 
-    // GET /lesson/delete
+    // DELETE /lesson/delete
     delete(req, res, next) {
-        Lesson.deleteOne({ _id: req.params.id })
+        Lesson.delete({ _id: req.params.id })
             .then(() => res.redirect('/me/stored/lessons'))
             .catch(next);
     }
 
-    // POST /lesson/update
+    // PUT /lesson/update
     update(req, res, next) {
         var formData = req.body;
 
@@ -52,16 +65,17 @@ class LessonController {
             .catch(next);
     }
 
-    store(req, res, next) {
-        var formData = req.body;
+    // PATCH /lesson/:id/restore
+    restore(req, res, next) {
+        Lesson.restore({ _id: req.params.id })
+            .then(() => res.redirect('/me/trashed/lessons'))
+            .catch(next);
+    }
 
-        formData.image = `https://i.ytimg.com/vi/${req.body.videoid}/hqdefault.jpg`;
-
-        const lesson = new Lesson(formData);
-
-        lesson
-            .save()
-            .then(() => res.redirect('/'))
+    // PATCH /lesson/:id/forceDelete
+    forceDelete(req, res, next) {
+        Lesson.deleteOne({ _id: req.params.id })
+            .then(() => res.redirect('/me/trashed/lessons'))
             .catch(next);
     }
 }

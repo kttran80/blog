@@ -1,6 +1,11 @@
 <div class="mt-4">
-    <h3>Khoa hoc cua ban</h3>
-    <a href="/me/trashed/lessons">Thung rac</a>
+    <div>
+      
+      <a href="/" >    
+          Danh sach khoa hoc
+      </a>
+    </div>
+    <h3>Khoa hoc da bi xoa</h3>
     <table class="table">
   <thead>
     <tr>
@@ -11,7 +16,7 @@
       
     </tr>
   </thead>
-  <tbody>
+  <tbody>    
         {{#each lessons}}
         <tr>
             <th scope="row">{{sum @index 1}}</th>
@@ -19,12 +24,12 @@
             <td>{{this.level}}</td>
             <td>{{this.createdAt}}</td>    
             <td>
-                <a href="/lesson/{{this._id}}/edit" class="btn btn-link">Sua</a>        
-                <a href="/lesson/{{this._id}}/delete" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-whatever="{{this._id}}">Xoa</a>
+                <a href="#" class="btn btn-link btn-restore" data-id="{{this._id}}">Khoi phuc</a>        
+                <a href="#" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#deleteForeverModal" data-bs-whatever="{{this._id}}">Xoa vinh vien</a>
             </td>
             {{else}}  
             <td colspan="5">
-              Ban chua dang khoa hoc nao. <a href="/lesson/create">Dang khoa hoc</a>
+             Thung rac trong. <a href="/me/stored/lessons/">Danh sach khoa hoc</a>
             </td>
         </tr> 
         {{~/each}}
@@ -34,15 +39,15 @@
 
 
 <!-- delete warning -->
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+<div class="modal fade" id="deleteForeverModal" tabindex="-1" aria-labelledby="deleteForeverModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteModalLabel">Xoa khoa hoc?</h5>
+        <h5 class="modal-title" id="deleteForeverModalLabel">Xoa khoa hoc?</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        Ban co chac chan xoa khoa hoc khong?
+        Ban co chac chan xoa khoa hoc vinh vien khong?
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Thoat</button>
@@ -52,15 +57,16 @@
   </div>
 </div>
 
-{{!-- delete form --}}
-<form method="post" name="delete-form">
 
-</form>
+{{!-- delete form --}}
+<form method="post" name="delete-form"></form>
+<form method="post" name="restore-form"></form>
 
 
 <script>
-  var deleteModal = document.getElementById('deleteModal')
-  deleteModal.addEventListener('show.bs.modal', function (event) {
+  var deleteForeverModal = document.getElementById('deleteForeverModal')
+  var restoreForm = document.forms['restore-form'];
+  deleteForeverModal.addEventListener('show.bs.modal', function (event) {
   // Button that triggered the modal
   var button = event.relatedTarget
   // Extract info from data-bs-* attributes
@@ -69,12 +75,27 @@
   var btnConfirmDelete = document.getElementById('btn-delete-lesson');
   var deleteForm = document.forms['delete-form'];
 
+
   btnConfirmDelete.onclick = function(){
       
-      deleteForm.action = '/lesson/' + id + '/delete?_method=DELETE';
+      deleteForm.action = '/lesson/' + id + '/force?_method=DELETE';
       deleteForm.submit();
   }
   
-  
-})
+  });
+
+  const restoreBtns = document.querySelectorAll('.btn-restore');  
+  for(var restorebtn of restoreBtns)
+  {
+    
+    restorebtn.onclick = (e) => {
+      e.preventDefault();
+      const id = e.target.getAttribute('data-id');
+
+      restoreForm.action = '/lesson/' + id + '/restore?_method=PATCH';
+      restoreForm.submit();
+
+      console.log(id);
+    }
+  }
 </script>

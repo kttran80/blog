@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
+
 var slug = require('mongoose-slug-generator');
+const mongooseDelete = require('mongoose-delete');
 
 const Schema = mongoose.Schema;
 
-mongoose.plugin(slug);
-
-const lesson = new Schema(
+const Lesson = new Schema(
     {
         title: { type: String, maxLength: 255, require: true },
         description: { type: String, maxLength: 600 },
@@ -19,4 +19,13 @@ const lesson = new Schema(
     },
 );
 
-module.exports = mongoose.model('Lesson', lesson);
+// add plugins
+mongoose.plugin(slug);
+Lesson.plugin(mongooseDelete, {
+    deletedBy: true,
+    deletedByType: String,
+    deletedAt: true,
+});
+Lesson.plugin(mongooseDelete, { overrideMethods: 'all' });
+
+module.exports = mongoose.model('Lesson', Lesson);
