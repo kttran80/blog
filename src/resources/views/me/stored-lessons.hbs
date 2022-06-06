@@ -1,0 +1,75 @@
+<div class="mt-4">
+    <h3>Khoa hoc cua toi</h3>
+    <table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Ten</th>
+      <th scope="col">Trinh do</th>
+      <th scope="col2" colspan="2">Thoi gian tao</th>
+      
+    </tr>
+  </thead>
+  <tbody>
+    {{#each lessons}}
+        <tr>
+            <th scope="row">{{sum @index 1}}</th>
+            <td>{{this.title}}</td>
+            <td>{{this.level}}</td>
+            <td>{{this.createdAt}}</td>    
+            <td>
+                <a href="/lesson/{{this._id}}/edit" class="btn btn-link">Sua</a>        
+                <a href="/lesson/{{this._id}}/delete" class="btn btn-link" data-bs-toggle="modal" data-bs-target="#deleteModal" data-bs-whatever="{{this._id}}">Xoa</a>
+            </td>
+        </tr>   
+    {{~/each}}
+  </tbody>
+</table>
+</div>
+
+
+<!-- delete warning -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Xoa khoa hoc?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Ban co chac chan xoa khoa hoc khong?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Thoat</button>
+        <button type="button" class="btn btn-danger" id="btn-delete-lesson">Xoa bo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{!-- delete form --}}
+<form method="post" name="delete-form">
+
+</form>
+
+
+<script>
+  var deleteModal = document.getElementById('deleteModal')
+  deleteModal.addEventListener('show.bs.modal', function (event) {
+  // Button that triggered the modal
+  var button = event.relatedTarget
+  // Extract info from data-bs-* attributes
+  var id = button.getAttribute('data-bs-whatever') 
+ 
+  var btnConfirmDelete = document.getElementById('btn-delete-lesson');
+  var deleteForm = document.forms['delete-form'];
+
+  btnConfirmDelete.onclick = function(){
+      
+      deleteForm.action = '/lesson/' + id + '/delete?_method=DELETE';
+      deleteForm.submit();
+  }
+  
+  
+})
+</script>

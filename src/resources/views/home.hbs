@@ -1,1 +1,15 @@
-HOMEPAGE
+<div class="mt-4">
+    <div class="row">
+        {{#each lessons}}
+        <div class="col-sm-6 col-lg-4">
+            <div class="card card-lesson-item" >
+                <img src="{{image}}" class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{title}}</h5>
+                    <p class="card-text">{{description}}</p>
+                    <a href="/lesson/{{slug}}" class="btn btn-primary">Buy</a>
+                </div>
+            </div>
+        </div>
+       {{~/each}}
+</div>
