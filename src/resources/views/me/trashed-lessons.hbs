@@ -29,9 +29,18 @@
     <tr>
       <th scope="col">#</th>
       <th scope="col">#</th>
-      <th scope="col">Ten</th>
-      <th scope="col">Trinh do</th>
-      <th scope="col2" colspan="2">Thoi gian Xoa</th>
+      <th scope="col">
+        Ten
+        {{{sortable 'title' _sort}}}
+      </th>
+      <th scope="col">
+        Trinh do
+        {{{sortable 'level' _sort}}}
+      </th>
+      <th scope="col2" colspan="2">
+        Thoi gian Xoa
+        {{{sortable 'deletedAt' _sort}}}  
+      </th>
       
     </tr>
   </thead>
